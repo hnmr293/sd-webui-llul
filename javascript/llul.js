@@ -22,32 +22,37 @@
     function updateXY(canvas) {
         let x = +canvas.dataset.x,
             y = +canvas.dataset.y,
+            m = +canvas.dataset.m,
+            mm = Math.pow(2, m),
             w = +canvas.width,
             h = +canvas.height;
         if (x < 0) x = 0;
-        if (w/2 < x) x = Math.floor(w/2);
+        if (w < x+w/mm) x = Math.floor(w-w/mm);
         if (y < 0) y = 0;
-        if (h/2 < y) y = Math.floor(h/2);
+        if (h < y+h/mm) y = Math.floor(h-h/mm);
         
         canvas.dataset.x = x;
         canvas.dataset.y = y;
+        canvas.dataset.m = m;
     }
     
     function draw(canvas) {
         const
             x = +canvas.dataset.x,
             y = +canvas.dataset.y,
+            m = +canvas.dataset.m,
+            mm = Math.pow(2, m),
             w = +canvas.width,
             h = +canvas.height;
         
-            const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
         
         const bgcolor = isDark() ? 'black' : 'white';
         ctx.fillStyle = bgcolor;
         ctx.fillRect(0, 0, +canvas.width, +canvas.height);
         
         ctx.fillStyle = 'gray';
-        ctx.fillRect(x, y, Math.floor(w/2), Math.floor(h/2));
+        ctx.fillRect(x, y, Math.floor(w/mm), Math.floor(h/mm));
     }
 
     async function update_gradio(type, canvas) {
@@ -57,10 +62,11 @@
     
     function init(type) {
         const $ = x => gradioApp().querySelector(x);
-        const cont = $('#' + id(type, 'container'))
-        const x = $('#' + id(type, 'x'))
-        const y = $('#' + id(type, 'y'))
-        if (!cont || !x || !y) return false;
+        const cont = $('#' + id(type, 'container'));
+        const x = $('#' + id(type, 'x'));
+        const y = $('#' + id(type, 'y'));
+        const m = $(`#${id(type, 'm')} input[type=number]`);
+        if (!cont || !x || !y || !m) return false;
 
         const width = $(`#${type}_width input[type=number]`);
         const height = $(`#${type}_height input[type=number]`);
@@ -69,9 +75,11 @@
         canvas.style.border = '1px solid gray';
         canvas.dataset.x = Math.floor(+width.value / 4 / M);
         canvas.dataset.y = Math.floor(+height.value / 4 / M);
+        canvas.dataset.m = m.value;
 
-        for (let ele of [width, height]) {
-            ele.addEventListener('change', e => {
+        for (let ele of [width, height, m]) {
+            ele.addEventListener('input', e => {
+                canvas.dataset.m = +m.value;
                 setSize(canvas, width.value, height.value);
                 updateXY(canvas);
                 draw(canvas);

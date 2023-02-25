@@ -17,8 +17,8 @@ def __set_value(p: StableDiffusionProcessing, script: type, index: int, value):
     for idx in froms:
         assert idx is not None
         args[idx + index] = value
-        if 2 < index:
-            args[idx + 2] = True
+        if 3 < index:
+            args[idx + 3] = True
     
     p.script_args = type(p.script_args)(args)
 
@@ -58,16 +58,19 @@ def init_xyz(script: type):
                 else:
                     data.module.axis_options.append(AxisOption(f'LLuL {param}', type, fn, choices=lambda: choices))
             
-            define('Enabled', 0, to_bool)
-            define('Weight', 1, float)
-            define('Layers', 3, str)
-            define('Apply to', 4, str, choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.'])
-            define('Start steps', 5, int)
-            define('Max steps', 6, int)
-            define('Upscaler', 7, str, choices=['Nearest', 'Bilinear', 'Bicubic'])
-            define('Upscaler AA', 8, to_bool)
-            define('Downscaler', 9, str, choices=['Nearest', 'Bilinear', 'Bicubic', 'Area', 'Pooling Max', 'Pooling Avg'])
-            define('Downscaler AA', 10, to_bool)
-            define('Interpolation method', 11, str, choices=['Lerp', 'SLerp'])
+            define('Enabled', 0, to_bool, choices=['false', 'true'])
+            define('Multiply', 1, int)
+            define('Weight', 2, float)
+            idx = 3
+            #define('Understand', idx+0, to_bool, choices=['false', 'true'])
+            define('Layers', idx+1, str)
+            define('Apply to', idx+2, str, choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.'])
+            define('Start steps', idx+3, int)
+            define('Max steps', idx+4, int)
+            define('Upscaler', idx+5, str, choices=['Nearest', 'Bilinear', 'Bicubic'])
+            define('Upscaler AA', idx+6, to_bool, choices=['false', 'true'])
+            define('Downscaler', idx+7, str, choices=['Nearest', 'Bilinear', 'Bicubic', 'Area', 'Pooling Max', 'Pooling Avg'])
+            define('Downscaler AA', idx+8, to_bool, choices=['false', 'true'])
+            define('Interpolation method', idx+9, str, choices=['Lerp', 'SLerp'])
             
     __init = True

@@ -30,6 +30,7 @@ class Script(scripts.Script):
         with gr.Group():
             with gr.Accordion(NAME, open=False):
                 enabled = gr.Checkbox(label='Enabled', value=False)
+                multiply = gr.Slider(value=1, minimum=1, maximum=5, step=1, label='Multiplication (2^N)', elem_id=id('m'))
                 weight = gr.Slider(minimum=-1, maximum=2, value=1, step=0.01, label='Weight')
                 gr.HTML(elem_id=id('container'))
                 
@@ -62,6 +63,7 @@ class Script(scripts.Script):
                 
         return [
             enabled,
+            multiply,
             weight,
             understand,
             layers,
@@ -81,6 +83,7 @@ class Script(scripts.Script):
         self,
         p: StableDiffusionProcessing,
         enabled: bool,
+        multiply: Union[int,float],
         weight: float,
         understand: bool,
         layers: str,
@@ -102,17 +105,18 @@ class Script(scripts.Script):
         if not enabled:
             return
         
-        if p.width < 128 or p.height < 127:
+        if p.width < 128 or p.height < 128:
             raise ValueError(f'Image size is too small to LLuL: {p.width}x{p.height}; expected >=128x128.')
         
         if p.width % 64 != 0 or p.height % 64 != 0:
             raise ValueError(f'Image size must be multiple of 64 for LLuL, but {p.width}x{p.height}.')
         
+        multiply = 2 ** int(max(multiply, 0))
         weight = float(weight)
         if x is None or len(x) == 0:
-            x = str(p.width // 4)
+            x = str((p.width - p.width // multiply) // 2)
         if y is None or len(y) == 0:
-            y = str(p.height // 4)
+            y = str((p.height - p.height // multiply) // 2)
         
         if understand:
             lays = (
@@ -138,6 +142,7 @@ class Script(scripts.Script):
         
         self.last_hooker = Hooker(
             enabled=True,
+            multiply=int(multiply),
             weight=weight,
             layers=lays,
             apply_to=apply_to,
@@ -155,6 +160,7 @@ class Script(scripts.Script):
         
         p.extra_generation_params.update({
             f'{NAME} Enabled': enabled,
+            f'{NAME} Multiply': multiply,
             f'{NAME} Weight': weight,
             f'{NAME} Layers': lays,
             f'{NAME} Apply to': apply_to,
