@@ -6,7 +6,7 @@
 
 This is an extension for [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) which lets you to upscale latents locally.
 
-See above image. These are all what this extension does.
+See above image. This is all what this extension does.
 
 ## Usage
 
