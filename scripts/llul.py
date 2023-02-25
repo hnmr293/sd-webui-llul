@@ -31,7 +31,7 @@ class Script(scripts.Script):
             with gr.Accordion(NAME, open=False):
                 enabled = gr.Checkbox(label='Enabled', value=False)
                 multiply = gr.Slider(value=1, minimum=1, maximum=5, step=1, label='Multiplication (2^N)', elem_id=id('m'))
-                weight = gr.Slider(minimum=-1, maximum=2, value=0.25, step=0.01, label='Weight')
+                weight = gr.Slider(minimum=-1, maximum=2, value=0.15, step=0.01, label='Weight')
                 gr.HTML(elem_id=id('container'))
                 
                 understand = gr.Checkbox(label='I know what I am doing.', value=False)
