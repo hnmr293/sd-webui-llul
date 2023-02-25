@@ -1,12 +1,12 @@
 # LLuL - Local Latent upscaLer
 
-![cover](./images/sample1.png)
+![cover](./images/sample1.jpg)
 
 ## What is this?
 
 This is an extension for [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) which lets you to upscale latents locally.
 
-See above image.
+See above image. These are all what this extension does.
 
 ## Usage
 
