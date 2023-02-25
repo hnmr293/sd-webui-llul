@@ -2,7 +2,7 @@
 
 ![cover](./images/cover.jpg)
 
-[images/cover.mp4](./images/cover.mp4)
+https://github.com/hnmr293/sd-webui-llul/blob/master/images/cover.mp4
 
 ## What is this?
 
@@ -28,4 +28,4 @@ See above image. This is all what this extension does.
 
 - Weight 0.00 -> 0.20 Animation
 
-[images/llul.mp4](./images/llul.mp4)
+https://github.com/hnmr293/sd-webui-llul/blob/master/images/llul.mp4
