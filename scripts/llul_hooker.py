@@ -91,6 +91,8 @@ class Hooker(SDHook):
         up_fn: Callable[[Tensor], Tensor],
         down_fn: Callable[[Tensor], Tensor],
         intp: str,
+        x: float,
+        y: float,
     ):
         super().__init__(enabled)
         self.weight = float(weight)
@@ -100,6 +102,8 @@ class Hooker(SDHook):
         self.max_steps = int(max_steps)
         self.up = up_fn
         self.down = down_fn
+        self.x0 = x
+        self.y0 = y
         
         if intp == 'lerp':
             self.intp = lerp
@@ -148,7 +152,7 @@ class Hooker(SDHook):
                 w, h = wi // 2, hi // 2
                 assert w % 2 == 0
                 assert h % 2 == 0
-                mw, mh = (wi - w) // 2, (hi - h) // 2
+                mw, mh = int(wi * self.x0), int(hi * self.y0)
                 x1 = x[:, :, mh:mh+h, mw:mw+w]
                 
                 # upscaling
@@ -189,7 +193,7 @@ class Hooker(SDHook):
                 w, h = wo // 2, ho // 2
                 assert w % 2 == 0, h % 2 == 0
                 
-                mw, mh = (wo - w) // 2, (ho - h) // 2
+                mw, mh = int(wo * self.x0), int(ho * self.y0)
                 x[:, :, mh:mh+h, mw:mw+w] = self.intp(x[:, :, mh:mh+h, mw:mw+w], x1, self.weight)
                 
                 if dim == 3:

@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Callable
 
 import gradio as gr
 
@@ -25,11 +25,13 @@ class Script(scripts.Script):
     def ui(self, is_img2img):
         mode = 'img2img' if is_img2img else 'txt2img'
         id = lambda x: f'{NAME.lower()}-{mode}-{x}'
+        js = lambda s: f'globalThis["{id(s)}"]'
         
         with gr.Group():
             with gr.Accordion(NAME, open=False):
-                enabled = gr.Checkbox(label='Enable', value=False)
+                enabled = gr.Checkbox(label='Enabled', value=False)
                 weight = gr.Slider(minimum=-1, maximum=2, value=1, step=0.01, label='Weight')
+                gr.HTML(elem_id=id('container'))
                 
                 understand = gr.Checkbox(label='I know what I am doing.', value=False)
                 with gr.Column(visible=False) as g:
@@ -53,6 +55,11 @@ class Script(scripts.Script):
                     ]
                 )
         
+                with gr.Row(visible=False):
+                    sink = gr.HTML(value='') # to suppress error in javascript
+                    x = js2py('x', id, js, sink)
+                    y = js2py('y', id, js, sink)
+                
         return [
             enabled,
             weight,
@@ -66,6 +73,8 @@ class Script(scripts.Script):
             down,
             down_aa,
             intp,
+            x,
+            y,
         ]
     
     def process(
@@ -83,6 +92,8 @@ class Script(scripts.Script):
         down: str,
         down_aa: bool,
         intp: str,
+        x: Union[str,None] = None,
+        y: Union[str,None] = None,
     ):
         if self.last_hooker is not None:
             self.last_hooker.__exit__(None, None, None)
@@ -92,9 +103,16 @@ class Script(scripts.Script):
             return
         
         if p.width < 128 or p.height < 127:
-            raise ValueError(f'too small to LLuL: {p.width}x{p.height}; expected >=128x128')
+            raise ValueError(f'Image size is too small to LLuL: {p.width}x{p.height}; expected >=128x128.')
+        
+        if p.width % 64 != 0 or p.height % 64 != 0:
+            raise ValueError(f'Image size must be multiple of 64 for LLuL, but {p.width}x{p.height}.')
         
         weight = float(weight)
+        if x is None or len(x) == 0:
+            x = str(p.width // 4)
+        if y is None or len(y) == 0:
+            y = str(p.height // 4)
         
         if understand:
             lays = (
@@ -128,6 +146,8 @@ class Script(scripts.Script):
             up_fn=up_fn,
             down_fn=down_fn,
             intp=intp,
+            x=int(x) / p.width,
+            y=int(y) / p.height,
         )
         
         self.last_hooker.setup(p)
@@ -143,6 +163,22 @@ class Script(scripts.Script):
             f'{NAME} Upscaler': up_fn.name,
             f'{NAME} Downscaler': down_fn.name,
             f'{NAME} Interpolation': intp,
+            f'{NAME} x': x,
+            f'{NAME} y': y,
         })
+
+def js2py(
+    name: str,
+    id: Callable[[str], str],
+    js: Callable[[str], str],
+    sink: gr.components.IOComponent,
+):
+    v_set = gr.Button(elem_id=id(f'{name}_set'))
+    v = gr.Textbox(elem_id=id(name))
+    v_sink = gr.Textbox()
+    v_set.click(fn=None, _js=js(name), outputs=[v, v_sink])
+    v_sink.change(fn=None, _js=js(f'{name}_after'), outputs=[sink])    
+    return v
+
 
 init_xyz(Script)
