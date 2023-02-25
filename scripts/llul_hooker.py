@@ -159,9 +159,12 @@ class Hooker(SDHook):
                 elif dim == 4:
                     # resblock, transformer
                     bi, chi, hi, wi = x.shape
-                    t_emb = rest[0] # t_emb (for resblock) or context (for transformer)
-                    #print(name, t_emb.shape)
-                    rest[0] = torch.concat((t_emb, t_emb), dim=0)
+                    if 0 < len(rest):
+                        t_emb = rest[0] # t_emb (for resblock) or context (for transformer)
+                        rest[0] = torch.concat((t_emb, t_emb), dim=0)
+                    else:
+                        # `out` layer
+                        pass
                 else:
                     return
                 
@@ -253,8 +256,9 @@ class Hooker(SDHook):
                 return x
             return post_hook
         
-        def create_hook(name: str):
+        def create_hook(name: str, **kwargs):
             ctx = dict()
+            ctx.update(kwargs)
             return (
                 create_pre_hook(name, ctx),
                 create_post_hook(name, ctx)
@@ -324,6 +328,15 @@ class Hooker(SDHook):
             pre, post = create_hook(name)
             self.hook_layer_pre(res, pre)
             self.hook_layer(res, post)
+        
+        # 
+        # process OUT
+        # 
+        if 'out' in self.apply_to:
+            out = unet.out
+            pre, post = create_hook('out')
+            self.hook_layer_pre(out, pre)
+            self.hook_layer(out, post)
     
     def get_size(self, p: StableDiffusionProcessing, n: int):
         # n := p.width / N * p.height / N

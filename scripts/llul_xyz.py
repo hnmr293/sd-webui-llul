@@ -64,7 +64,7 @@ def init_xyz(script: type):
             idx = 3
             #define('Understand', idx+0, to_bool, choices=['false', 'true'])
             define('Layers', idx+1, str)
-            define('Apply to', idx+2, str, choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.'])
+            define('Apply to', idx+2, str, choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.', 'OUT'])
             define('Start steps', idx+3, int)
             define('Max steps', idx+4, int)
             define('Upscaler', idx+5, str, choices=['Nearest', 'Bilinear', 'Bicubic'])

@@ -31,13 +31,13 @@ class Script(scripts.Script):
             with gr.Accordion(NAME, open=False):
                 enabled = gr.Checkbox(label='Enabled', value=False)
                 multiply = gr.Slider(value=1, minimum=1, maximum=5, step=1, label='Multiplication (2^N)', elem_id=id('m'))
-                weight = gr.Slider(minimum=-1, maximum=2, value=1, step=0.01, label='Weight')
+                weight = gr.Slider(minimum=-1, maximum=2, value=0.25, step=0.01, label='Weight')
                 gr.HTML(elem_id=id('container'))
                 
                 understand = gr.Checkbox(label='I know what I am doing.', value=False)
                 with gr.Column(visible=False) as g:
                     layers = gr.Textbox(label='Layers', value='OUT')
-                    apply_to = gr.CheckboxGroup(choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.'], value=['X. Attn.'], label='Apply to')
+                    apply_to = gr.CheckboxGroup(choices=['Resblock', 'Transformer', 'S. Attn.', 'X. Attn.', 'OUT'], value=['OUT'], label='Apply to')
                     start_steps = gr.Slider(minimum=1, maximum=300, value=5, step=1, label='Start steps')
                     max_steps = gr.Slider(minimum=0, maximum=300, value=0, step=1, label='Max steps')
                     with gr.Row():
@@ -133,7 +133,7 @@ class Script(scripts.Script):
             intp = intp.lower()
         else:
             lays = ['OUT']
-            apply_to = ['x. attn.']
+            apply_to = ['out']
             start_steps = 5
             max_steps = p.steps
             up_fn = Upscaler('bilinear', aa=False)
