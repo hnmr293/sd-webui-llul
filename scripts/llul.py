@@ -111,7 +111,7 @@ class Script(scripts.Script):
             intp = intp.lower()
         else:
             lays = ['OUT']
-            apply_to = ['s. attn.', 'x. attn.']
+            apply_to = ['x. attn.']
             start_steps = 5
             max_steps = p.steps
             up_fn = Upscaler('bilinear', aa=False)
