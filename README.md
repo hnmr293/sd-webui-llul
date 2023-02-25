@@ -1,6 +1,8 @@
 # LLuL - Local Latent upscaLer
 
-![cover](./images/sample1.jpg)
+![cover](./images/cover.jpg)
+
+[images/cover.mp4](./images/cover.mp4)
 
 ## What is this?
 
@@ -13,3 +15,17 @@ See above image. This is all what this extension does.
 1. Select `Enabled` checkbox.
 2. Move gray box where you want to apply upscaling.
 3. Generate image.
+
+## Examples
+
+![sample 2](./images/sample1.jpg)
+
+![sample 3](./images/sample2.jpg)
+
+![sample 4](./images/sample3.jpg)
+
+![sample 5](./images/sample4.jpg)
+
+- Weight 0.00 -> 0.20 Animation
+
+[images/llul.mp4](./images/llul.mp4)
