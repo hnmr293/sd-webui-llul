@@ -30,3 +30,6 @@ See above image. This is all what this extension does.
 
 https://user-images.githubusercontent.com/120772120/221390834-7e2c1a1a-d7a6-46b0-8949-83c4d5839c33.mp4
 
+## How it works
+
+![description of process](./images/desc.png)
