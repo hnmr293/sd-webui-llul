@@ -2,7 +2,7 @@
 
 ![cover](./images/cover.jpg)
 
-https://github.com/hnmr293/sd-webui-llul/blob/master/images/cover_yuv420p.mp4
+https://github.com/hnmr293/sd-webui-llul/blob/master/images/cover_yuv420p.mp4?raw=true
 
 ## What is this?
 
@@ -28,4 +28,4 @@ See above image. This is all what this extension does.
 
 - Weight 0.00 -> 0.20 Animation
 
-https://github.com/hnmr293/sd-webui-llul/blob/master/images/llul_yuv420p.mp4
+https://github.com/hnmr293/sd-webui-llul/blob/master/images/llul_yuv420p.mp4?raw=true
