@@ -2,7 +2,7 @@
 
 ![cover](./images/cover.jpg)
 
-<video controls src="./images/cover_yuv420p.mp4" muted></video>
+https://user-images.githubusercontent.com/120772120/221390831-9fbccdf8-5898-4515-b988-d6733e8af3f1.mp4
 
 ## What is this?
 
@@ -28,4 +28,5 @@ See above image. This is all what this extension does.
 
 - Weight 0.00 -> 0.20 Animation
 
-<video controls src="./images/llul_yuv420p.mp4" muted></video>
+https://user-images.githubusercontent.com/120772120/221390834-7e2c1a1a-d7a6-46b0-8949-83c4d5839c33.mp4
+
