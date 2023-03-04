@@ -140,6 +140,9 @@ class Script(scripts.Script):
             down_fn = Downscaler('pooling max', aa=False)
             intp = 'lerp'
         
+        xf = float(x)
+        yf = float(y)
+        
         self.last_hooker = Hooker(
             enabled=True,
             multiply=int(multiply),
@@ -151,8 +154,8 @@ class Script(scripts.Script):
             up_fn=up_fn,
             down_fn=down_fn,
             intp=intp,
-            x=int(x) / p.width,
-            y=int(y) / p.height,
+            x=xf/p.width,
+            y=yf/p.height,
         )
         
         self.last_hooker.setup(p)
