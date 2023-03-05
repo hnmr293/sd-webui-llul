@@ -108,9 +108,6 @@ class Script(scripts.Script):
         if p.width < 128 or p.height < 128:
             raise ValueError(f'Image size is too small to LLuL: {p.width}x{p.height}; expected >=128x128.')
         
-        if p.width % 64 != 0 or p.height % 64 != 0:
-            raise ValueError(f'Image size must be multiple of 64 for LLuL, but {p.width}x{p.height}.')
-        
         multiply = 2 ** int(max(multiply, 0))
         weight = float(weight)
         if x is None or len(x) == 0:
