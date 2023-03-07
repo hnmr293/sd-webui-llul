@@ -103,6 +103,7 @@ class Hooker(SDHook):
         intp: str,
         x: float,
         y: float,
+        force_float: bool,
     ):
         super().__init__(enabled)
         self.multiply = int(multiply)
@@ -115,6 +116,7 @@ class Hooker(SDHook):
         self.down = down_fn
         self.x0 = x
         self.y0 = y
+        self.force_float = force_float
         
         if intp == 'lerp':
             self.intp = lerp
@@ -247,7 +249,7 @@ class Hooker(SDHook):
                 if s0 < 0 or t0 < 0:
                     raise ValueError(f'LLuL failed to process: s=({s0},{s1}), t=({t0},{t1})')
                 
-                x[:, :, t0:t1, s0:s1] = self.intp(x[:, :, t0:t1, s0:s1], x1, self.weight)
+                x[:, :, t0:t1, s0:s1] = self.interpolate(x[:, :, t0:t1, s0:s1], x1, self.weight)
                 
                 if dim == 3:
                     x = rearrange(x, 'b c h w -> b (h w) c').contiguous()
@@ -349,3 +351,16 @@ class Hooker(SDHook):
         w, h = p.width // N, p.height // N
         assert w * h == n, f'w={w}, h={h}, N={N}, n={n}'
         return w, h, N
+    
+    def interpolate(self, v1: Tensor, v2: Tensor, t: float):
+        dtype = v1.dtype
+        if self.force_float:
+            v1 = v1.float()
+            v2 = v2.float()
+        
+        v = self.intp(v1, v2, t)
+        
+        if self.force_float:
+            v = v.to(dtype)
+        
+        return v

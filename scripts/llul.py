@@ -34,6 +34,7 @@ class Script(scripts.Script):
                 weight = gr.Slider(minimum=-1, maximum=2, value=0.15, step=0.01, label='Weight')
                 gr.HTML(elem_id=id('container'))
                 
+                force_float = gr.Checkbox(label='Force convert half to float on interpolation (for some platforms)', value=False)
                 understand = gr.Checkbox(label='I know what I am doing.', value=False)
                 with gr.Column(visible=False) as g:
                     layers = gr.Textbox(label='Layers', value='OUT')
@@ -77,6 +78,7 @@ class Script(scripts.Script):
             intp,
             x,
             y,
+            force_float,
         ]
     
     def process(
@@ -97,6 +99,7 @@ class Script(scripts.Script):
         intp: str,
         x: Union[str,None] = None,
         y: Union[str,None] = None,
+        force_float = False,
     ):
         if self.last_hooker is not None:
             self.last_hooker.__exit__(None, None, None)
@@ -132,7 +135,7 @@ class Script(scripts.Script):
             lays = ['OUT']
             apply_to = ['out']
             start_steps = 5
-            max_steps = p.steps
+            max_steps = int(p.steps)
             up_fn = Upscaler('bilinear', aa=False)
             down_fn = Downscaler('pooling max', aa=False)
             intp = 'lerp'
@@ -153,6 +156,7 @@ class Script(scripts.Script):
             intp=intp,
             x=xf/p.width,
             y=yf/p.height,
+            force_float=force_float,
         )
         
         self.last_hooker.setup(p)
