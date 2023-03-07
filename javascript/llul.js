@@ -66,7 +66,8 @@
         const x = $('#' + id(type, 'x'));
         const y = $('#' + id(type, 'y'));
         const m = $(`#${id(type, 'm')} input[type=number]`);
-        if (!cont || !x || !y || !m) return false;
+        const ms = $(`#${id(type, 'm')} input[type=range]`);
+        if (!cont || !x || !y || !m || !ms) return false;
 
         const width = $(`#${type}_width input[type=number]`);
         const height = $(`#${type}_height input[type=number]`);
@@ -77,7 +78,7 @@
         canvas.dataset.y = Math.floor(+height.value / 4 / M);
         canvas.dataset.m = m.value;
 
-        for (let ele of [width, height, m]) {
+        for (let ele of [width, height, m, ms]) {
             ele.addEventListener('input', e => {
                 canvas.dataset.m = +m.value;
                 setSize(canvas, width.value, height.value);
