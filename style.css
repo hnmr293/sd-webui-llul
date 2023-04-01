@@ -1,0 +1,16 @@
+.llul-bg-setting {
+    margin-top: 0.5em;
+}
+
+.llul-bg-setting span {
+    display: inline-block;
+    margin: 0 0.5em;
+    padding: 0.5em;
+    outline: 1px solid black;
+    cursor: default;
+    user-select: none;
+}
+
+.llul-bg-setting label {
+    user-select: none;
+}

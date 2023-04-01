@@ -36,20 +36,37 @@
         canvas.dataset.m = m;
     }
 
-    function draw(canvas) {
+    let last_image = new Image();
+    async function draw(canvas) {
         const
             x = +canvas.dataset.x,
             y = +canvas.dataset.y,
             m = +canvas.dataset.m,
             mm = Math.pow(2, m),
             w = +canvas.width,
-            h = +canvas.height;
+            h = +canvas.height,
+            bg = canvas.dataset.bg;
 
         const ctx = canvas.getContext('2d');
 
-        const bgcolor = isDark() ? 'black' : 'white';
-        ctx.fillStyle = bgcolor;
-        ctx.fillRect(0, 0, +canvas.width, +canvas.height);
+        if (bg) {
+            if (last_image?.src === bg) {
+                // do nothing
+            } else {
+                await (new Promise(resolve => {
+                    last_image.onload = () => resolve();
+                    last_image.src = bg;
+                }));
+            }
+        }
+        
+        if (last_image.src) {
+            ctx.drawImage(last_image, 0, 0, +last_image.width, +last_image.height, 0, 0, +canvas.width, +canvas.height);
+        } else {
+            const bgcolor = isDark() ? 'black' : 'white';
+            ctx.fillStyle = bgcolor;
+            ctx.fillRect(0, 0, +canvas.width, +canvas.height);
+        }
 
         ctx.fillStyle = 'gray';
         ctx.fillRect(x, y, Math.floor(w / mm), Math.floor(h / mm));
@@ -79,6 +96,14 @@
         canvas.dataset.x = Math.floor(+width.value / 4 / M);
         canvas.dataset.y = Math.floor(+height.value / 4 / M);
         canvas.dataset.m = m.value;
+
+        const bg_cont = document.createElement('div');
+        bg_cont.classList.add('llul-bg-setting');
+        bg_cont.innerHTML = `
+<span>Load BG</span>
+<span>Erase BG</span>
+<input type="file" style="display:none">
+        `;
 
         for (let ele of [width, height, width2, height2, m, ms]) {
             ele.addEventListener('input', e => {
@@ -113,8 +138,33 @@
             updateXY(canvas);
             draw(canvas);
         });
+        
+        function set_bg(url) {
+            canvas.dataset.bg = url;
+            draw(canvas);
+        }
+        bg_cont.querySelector('input[type=file]').addEventListener('change', e => {
+            const ele = e.target;
+            const files = ele.files;
+            if (files.length != 0) {
+                const file = files[0];
+                const r = new FileReader();
+                r.onload = () => set_bg(r.result);
+                r.readAsDataURL(file);
+            }
+            ele.value = '';
+        }, false);
+        bg_cont.addEventListener('click', e => {
+            const ele = e.target;
+            if (ele.textContent == 'Load BG') {
+                bg_cont.querySelector('input[type=file]').click();
+            } else if (ele.textContent == 'Erase BG') {
+                set_bg('');
+            }
+        });
 
         cont.appendChild(canvas);
+        cont.appendChild(bg_cont);
         setSize(canvas, width.value, height.value);
         updateXY(canvas);
         draw(canvas);
