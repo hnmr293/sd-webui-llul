@@ -7,7 +7,7 @@
         let _r = 0;
         function to_gradio(v) {
             // force call `change` event on gradio
-            return [v, _r++];
+            return [v.toString(), (_r++).toString()];
         }
         
         function js2py(type, gradio_field, value) {

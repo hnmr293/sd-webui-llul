@@ -78,7 +78,7 @@
     }
 
     function init(type) {
-        const $ = x => gradioApp().querySelector(x);
+        const $ = x => Array.from(gradioApp().querySelectorAll(x)).at(-1);
         const cont = $('#' + id(type, 'container'));
         const x = $('#' + id(type, 'x'));
         const y = $('#' + id(type, 'y'));
