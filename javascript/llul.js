@@ -86,6 +86,8 @@
         const ms = $(`#${id(type, 'm')} input[type=range]`);
         if (!cont || !x || !y || !m || !ms) return false;
 
+        if (cont.querySelector('canvas')) return true; // already called
+
         const width = $(`#${type}_width input[type=number]`);
         const height = $(`#${type}_height input[type=number]`);
         const width2 = $(`#${type}_width input[type=range]`);
@@ -172,18 +174,51 @@
         return true;
     }
 
+    function init2(type, init_fn) {
+        const get_acc = new Promise(resolve => {
+            (function try_get_acc() {
+                const acc = gradioApp().querySelector('#' + id(type, 'accordion'));
+                if (acc) {
+                    resolve(acc);
+                } else {
+                    setTimeout(try_get_acc, 500);
+                }
+            })();
+        });
+
+        return get_acc.then(acc => {
+            const observer = new MutationObserver((list, observer) => {
+                for (let mut of list) {
+                    //console.log(mut.type);
+                    if (mut.type === 'childList') {
+                        //console.log(mut.addedNodes);
+                        //console.log(mut.removedNodes);
+                        if (mut.addedNodes.length != 0) {
+                            // closed -> opened
+                            init_fn(type);
+                        } else {
+                            // opened -> closed
+                            // do nothing
+                        }
+                    }
+                }
+            });
+            observer.observe(acc, { childList: true, attributes: false, subtree: false });
+        });
+    }
+    
     function init_LLuL() {
         if (!LLuL.txt2img) {
-            LLuL.txt2img = init('txt2img');
+            LLuL.txt2img = init2('txt2img', init);
             if (LLuL.txt2img) {
-                console.log('[LLuL] txt2img initialized');
+                LLuL.txt2img.then(() => console.log('[LLuL] txt2img initialized'));
             }
         }
 
         if (!LLuL.img2img) {
-            LLuL.img2img = init('img2img');
+            LLuL.img2img = init2('img2img', init);
             if (LLuL.img2img) {
-                console.log('[LLuL] img2img initialized');
+                LLuL.img2img.then(() => console.log('[LLuL] img2img initialized'));
             }
         }
 
