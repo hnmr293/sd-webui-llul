@@ -122,14 +122,31 @@
         return true;
     }
 
-    onUiUpdate(() => {
+    function init_LLuL() {
         if (!LLuL.txt2img) {
             LLuL.txt2img = init('txt2img');
+            if (LLuL.txt2img) {
+                console.log('[LLuL] txt2img initialized');
+            }
         }
 
         if (!LLuL.img2img) {
             LLuL.img2img = init('img2img');
+            if (LLuL.img2img) {
+                console.log('[LLuL] img2img initialized');
+            }
         }
-    });
+
+        return LLuL.txt2img && LLuL.img2img;
+    }
+
+    function apply() {
+        const ok = init_LLuL();
+        if (!ok) {
+            setTimeout(apply, 500);
+        }
+    }
+
+    apply();
 
 })();
