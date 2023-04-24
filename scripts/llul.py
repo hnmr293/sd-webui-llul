@@ -45,9 +45,9 @@ class Script(scripts.Script):
                         up = gr.Radio(choices=['Nearest', 'Bilinear', 'Bicubic'], value='Bilinear', label='Upscaling')
                         up_aa = gr.Checkbox(value=False, label='Enable AA for Upscaling.')
                     with gr.Row():
-                        down = gr.Radio(choices=['Nearest', 'Bilinear', 'Bicubic', 'Area', 'Pooling Max', 'Pooling Avg'], value='Pooling Max', label='Downscaling')
+                        down = gr.Radio(choices=['Nearest', 'Bilinear', 'Bicubic', 'Area', 'Pooling Max', 'Pooling Avg'], value='Bilinear', label='Downscaling')
                         down_aa = gr.Checkbox(value=False, label='Enable AA for Downscaling.')
-                    intp = gr.Radio(choices=['Lerp', 'SLerp'], value='Lerp', label='interpolation method')
+                    intp = gr.Radio(choices=['Lerp', 'SLerp'], value='SLerp', label='interpolation method')
                 
                 understand.change(
                     lambda b: { g: gr.update(visible=b) },
@@ -137,8 +137,8 @@ class Script(scripts.Script):
             start_steps = 5
             max_steps = int(p.steps)
             up_fn = Upscaler('bilinear', aa=False)
-            down_fn = Downscaler('pooling max', aa=False)
-            intp = 'lerp'
+            down_fn = Downscaler('bilinear', aa=False)
+            intp = 'slerp'
         
         xf = float(x)
         yf = float(y)
