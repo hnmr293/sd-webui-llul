@@ -37,6 +37,7 @@
     }
 
     let last_image = new Image();
+    let hide_image = true;
     async function draw(canvas) {
         const
             x = +canvas.dataset.x,
@@ -58,9 +59,13 @@
                     last_image.src = bg;
                 }));
             }
+            hide_image = false;
+        } else {
+            last_image.src = '';
+            hide_image = true;
         }
         
-        if (last_image.src) {
+        if (last_image.src && !hide_image) {
             ctx.drawImage(last_image, 0, 0, +last_image.width, +last_image.height, 0, 0, +canvas.width, +canvas.height);
         } else {
             const bgcolor = isDark() ? 'black' : 'white';
