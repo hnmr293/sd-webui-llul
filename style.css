@@ -14,3 +14,9 @@
 .llul-bg-setting label {
     user-select: none;
 }
+
+#llul-txt2img-mask,
+#llul-img2img-mask {
+    max-height: 4em;
+    overflow: hidden !important;
+}

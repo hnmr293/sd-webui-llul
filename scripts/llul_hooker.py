@@ -3,8 +3,10 @@ from typing import Union, Callable, List
 
 import torch
 import torch.nn.functional as F
+import torchvision.transforms.functional
 from torch import nn, Tensor
 from einops import rearrange
+from PIL import Image
 from modules.processing import StableDiffusionProcessing, slerp as Slerp
 
 from scripts.sdhook import (
@@ -104,6 +106,7 @@ class Hooker(SDHook):
         x: float,
         y: float,
         force_float: bool,
+        mask_image: Union[Image.Image,None],
     ):
         super().__init__(enabled)
         self.multiply = int(multiply)
@@ -117,6 +120,7 @@ class Hooker(SDHook):
         self.x0 = x
         self.y0 = y
         self.force_float = force_float
+        self.mask_image = mask_image
         
         if intp == 'lerp':
             self.intp = lerp
@@ -127,6 +131,10 @@ class Hooker(SDHook):
         
         if not (1 <= self.multiply and (self.multiply & (self.multiply - 1) == 0)):
             raise ValueError(f'multiplier must be power of 2, but not: {self.multiply}')
+        
+        if mask_image is not None:
+            if mask_image.mode != 'L':
+                raise ValueError(f'the mode of mask image is: {mask_image.mode}')
     
     def hook_unet(self, p: StableDiffusionProcessing, unet: nn.Module):
         step = 0
@@ -358,7 +366,15 @@ class Hooker(SDHook):
             v1 = v1.float()
             v2 = v2.float()
         
-        v = self.intp(v1, v2, t)
+        if self.mask_image is None:
+            v = self.intp(v1, v2, t)
+        else:
+            to_w, to_h = v1.shape[-1], v1.shape[-2]
+            resized_image = self.mask_image.resize((to_w, to_h), Image.BILINEAR)
+            mask = torchvision.transforms.functional.to_tensor(resized_image).to(device=v1.device, dtype=v1.dtype)
+            mask.unsqueeze_(0) # (C,H,W) -> (B,C,H,W)
+            mask.mul_(t)
+            v = self.intp(v1, v2, mask)
         
         if self.force_float:
             v = v.to(dtype)

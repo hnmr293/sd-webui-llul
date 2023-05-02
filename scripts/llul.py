@@ -1,5 +1,7 @@
+import tempfile
 from typing import Union, List, Callable
 
+from PIL import Image
 import gradio as gr
 
 from modules.processing import StableDiffusionProcessing
@@ -33,6 +35,9 @@ class Script(scripts.Script):
                 multiply = gr.Slider(value=1, minimum=1, maximum=5, step=1, label='Multiplication (2^N)', elem_id=id('m'))
                 weight = gr.Slider(minimum=-1, maximum=2, value=0.15, step=0.01, label='Weight')
                 gr.HTML(elem_id=id('container'))
+                
+                use_mask = gr.Checkbox(value=False, label='Enable mask which scales the weight (black = 0.0, white = 1.0)')
+                mask = gr.File(interactive=True, label='Upload mask image', elem_id=id('mask'))
                 
                 force_float = gr.Checkbox(label='Force convert half to float on interpolation (for some platforms)', value=False)
                 understand = gr.Checkbox(label='I know what I am doing.', value=False)
@@ -79,6 +84,8 @@ class Script(scripts.Script):
             x,
             y,
             force_float,
+            use_mask,
+            mask,
         ]
     
     def process(
@@ -100,6 +107,8 @@ class Script(scripts.Script):
         x: Union[str,None] = None,
         y: Union[str,None] = None,
         force_float = False,
+        use_mask: bool = False,
+        mask: Union[tempfile._TemporaryFileWrapper,None] = None,
     ):
         if self.last_hooker is not None:
             self.last_hooker.__exit__(None, None, None)
@@ -143,6 +152,12 @@ class Script(scripts.Script):
         xf = float(x)
         yf = float(y)
         
+        mask_image = None
+        if use_mask and mask is not None:
+            # Can I read from passed tempfile._TemporaryFileWrapper???
+            mask_image = Image.open(mask.name).convert('L')
+            intp = 'lerp'
+        
         self.last_hooker = Hooker(
             enabled=True,
             multiply=int(multiply),
@@ -157,6 +172,7 @@ class Script(scripts.Script):
             x=xf/p.width,
             y=yf/p.height,
             force_float=force_float,
+            mask_image=mask_image,
         )
         
         self.last_hooker.setup(p)

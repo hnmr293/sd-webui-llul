@@ -30,6 +30,14 @@ See above image. This is all what this extension does.
 
 https://user-images.githubusercontent.com/120772120/221390834-7e2c1a1a-d7a6-46b0-8949-83c4d5839c33.mp4
 
+## Mask
+
+The mask is now available. 
+
+Each pixel values of the mask are treated as the scale factors of the interpolation weight. White is 1.0 (enabled), black is 0.0 (disabled) and gray reduces the weights.
+
+![mask sample](./images/mask_effect.jpg)
+
 ## How it works
 
 ![description of process](./images/desc.png)
