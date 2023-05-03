@@ -17,8 +17,8 @@
 
 #llul-txt2img-mask,
 #llul-img2img-mask {
-    max-height: 4em;
-    overflow: hidden !important;
+    max-height: 2em;
+    overflow: visible;
 }
 
 .llul-pos input {
