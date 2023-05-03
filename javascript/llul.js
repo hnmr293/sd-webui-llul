@@ -24,8 +24,8 @@
             y = +canvas.dataset.y,
             m = +canvas.dataset.m,
             mm = Math.pow(2, m),
-            w = +canvas.width,
-            h = +canvas.height;
+            w = +canvas.width * M,
+            h = +canvas.height * M;
         if (x < 0) x = 0;
         if (w < x + w / mm) x = Math.floor(w - w / mm);
         if (y < 0) y = 0;
@@ -34,6 +34,9 @@
         canvas.dataset.x = x;
         canvas.dataset.y = y;
         canvas.dataset.m = m;
+
+        canvas.parentNode.querySelector('.llul-pos-x').value = x;
+        canvas.parentNode.querySelector('.llul-pos-y').value = y;
     }
 
     let last_image = new Image();
@@ -74,12 +77,12 @@
         }
 
         ctx.fillStyle = 'gray';
-        ctx.fillRect(x, y, Math.floor(w / mm), Math.floor(h / mm));
+        ctx.fillRect(x / M, y / M, Math.floor(w / mm), Math.floor(h / mm));
     }
 
     async function update_gradio(type, canvas) {
-        await LLuL.js2py(type, 'x', +canvas.dataset.x * M);
-        await LLuL.js2py(type, 'y', +canvas.dataset.y * M);
+        await LLuL.js2py(type, 'x', +canvas.dataset.x);
+        await LLuL.js2py(type, 'y', +canvas.dataset.y);
     }
 
     function init(type) {
@@ -98,10 +101,21 @@
         const width2 = $(`#${type}_width input[type=range]`);
         const height2 = $(`#${type}_height input[type=range]`);
 
+        const pos_x = Math.floor(+width.value / 4);
+        const pos_y = Math.floor(+height.value / 4);
+        
+        const pos_cont = document.createElement('div');
+        pos_cont.innerHTML = `
+<div class="llul-pos" id="llul-${type}-pos">
+    <label>x:<input type="number" value="${pos_x}" min="0" step="1" class="llul-pos-x" id="llul-${type}-pos-x"></label>
+    <label>y:<input type="number" value="${pos_y}" min="0" step="1" class="llul-pos-y" id="llul-${type}-pos-y"></label>
+</div>
+        `;
+
         const canvas = document.createElement('canvas');
         canvas.style.border = '1px solid gray';
-        canvas.dataset.x = Math.floor(+width.value / 4 / M);
-        canvas.dataset.y = Math.floor(+height.value / 4 / M);
+        canvas.dataset.x = pos_x;
+        canvas.dataset.y = pos_y;
         canvas.dataset.m = m.value;
 
         const bg_cont = document.createElement('div');
@@ -121,6 +135,12 @@
             });
         }
 
+        // 
+        // Event Listeners
+        // 
+        
+        // canvas
+
         let dragging = false;
         let last_x, last_y;
         canvas.addEventListener('pointerdown', e => {
@@ -138,13 +158,15 @@
             if (!dragging) return;
             const dx = e.offsetX - last_x, dy = e.offsetY - last_y;
             const x = +canvas.dataset.x, y = +canvas.dataset.y;
-            canvas.dataset.x = x + dx;
-            canvas.dataset.y = y + dy;
+            canvas.dataset.x = x + dx * M;
+            canvas.dataset.y = y + dy * M;
             last_x = e.offsetX;
             last_y = e.offsetY;
             updateXY(canvas);
             draw(canvas);
         });
+        
+        // bg_cont
         
         function set_bg(url) {
             canvas.dataset.bg = url;
@@ -169,7 +191,28 @@
                 set_bg('');
             }
         });
+        
+        // pos_cont
 
+        pos_cont.addEventListener('input', e => {
+            const ele = e.target;
+            let x = +canvas.dataset.x;
+            let y = +canvas.dataset.y;
+            if (ele.classList.contains(`llul-pos-x`)) {
+                x = +ele.value;
+            } else if (ele.classList.contains(`llul-pos-y`)) {
+                y = +ele.value;
+            } else {
+                return;
+            }
+            canvas.dataset.x = x;
+            canvas.dataset.y = y;
+            updateXY(canvas);
+            draw(canvas);
+            update_gradio(type, canvas);
+        });
+
+        cont.appendChild(pos_cont);
         cont.appendChild(canvas);
         cont.appendChild(bg_cont);
         setSize(canvas, width.value, height.value);

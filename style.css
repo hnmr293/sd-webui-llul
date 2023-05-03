@@ -20,3 +20,18 @@
     max-height: 4em;
     overflow: hidden !important;
 }
+
+.llul-pos input {
+    display: inline-block;
+    border: none;
+    border-bottom: 1px solid black;
+    font-size: smaller !important;
+    width: 8em;
+    height: 1em;
+    background-color: transparent;
+    margin-right: 1em;
+}
+
+.dark .llul-pos input {
+    border-bottom-color: white;
+}
