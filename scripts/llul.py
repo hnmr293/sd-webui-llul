@@ -1,7 +1,9 @@
 import tempfile
 from typing import Union, List, Callable
 
-from PIL import Image, ImageDraw, ImageChops
+import torch
+import torchvision.transforms.functional
+from PIL import Image
 import gradio as gr
 
 from modules.processing import StableDiffusionProcessing, Processed
@@ -225,7 +227,7 @@ class Script(scripts.Script):
         if not enabled:
             return
         
-        multiply = 2 ** int(max(multiply, 0))
+        multiply = int(2 ** int(max(multiply, 0)))
         if x is None or len(x) == 0:
             x = str((p.width - p.width // multiply) // 2)
         if y is None or len(y) == 0:
@@ -235,17 +237,31 @@ class Script(scripts.Script):
         yi0 = int(y)
         xi1 = xi0 + p.width // multiply
         yi1 = yi0 + p.height // multiply
-        area = Image.new(mode='RGB', size=(p.width, p.height), color=(128,128,128))
-        draw = ImageDraw.Draw(area)
-        draw.rectangle((xi0, yi0, xi1, yi1), fill=(255,255,255))
+        
+        area = torch.zeros((1, p.height, p.width), dtype=torch.float)
+        area[:, yi0:yi1, xi0:xi1] = 1.0
+        
+        pil_to_tensor = torchvision.transforms.functional.to_tensor
+        tensor_to_pil = torchvision.transforms.functional.to_pil_image
+        
+        if use_mask and mask is not None:
+            # Can I read from passed tempfile._TemporaryFileWrapper???
+            mask_image = Image.open(mask.name).convert('L').resize((xi1 - xi0, yi1 - yi0), Image.BILINEAR)
+            mask_tensor = pil_to_tensor(mask_image)
+            # :: (1,h,w), each value is between 0 and 1
+            area[:, yi0:yi1, xi0:xi1] = mask_tensor
+        
+        # (0.0, 1.0) -> (0.25, 1.0)
+        area.mul_(0.75).add_(0.25)
         
         for image_index in range(len(proc.images)):
             is_grid = image_index < proc.index_of_first_image
             if is_grid:
                 continue
             
-            image = proc.images[image_index]
-            area_image = ImageChops.multiply(image, area)
+            area_tensor = pil_to_tensor(proc.images[image_index])
+            area_tensor.mul_(area)
+            area_image = tensor_to_pil(area_tensor, mode='RGB')
             
             i = image_index - proc.index_of_first_image
             proc.images.append(area_image)
