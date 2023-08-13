@@ -251,7 +251,7 @@
                     }
                 }
             });
-            observer.observe(acc, { childList: true, attributes: false, subtree: false });
+            observer.observe(acc, { childList: true, attributes: false, subtree: true });
         });
     }
     
