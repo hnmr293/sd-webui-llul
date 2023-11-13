@@ -34,4 +34,5 @@
 
 .dark .llul-pos input {
     border-bottom-color: white;
+    background-color: transparent;
 }

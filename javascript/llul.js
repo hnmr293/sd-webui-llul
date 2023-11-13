@@ -86,7 +86,11 @@
     }
 
     function init(type) {
-        const $ = x => Array.from(gradioApp().querySelectorAll(x)).at(-1);
+        const $$ = (x,n) => Array.from(gradioApp().querySelectorAll(x)).at(n);
+        const $ = x => $$(x, -1);
+        
+        if (!$('#' + id(type, 'accordion'))) return false;
+        
         const cont = $('#' + id(type, 'container'));
         const x = $('#' + id(type, 'x'));
         const y = $('#' + id(type, 'y'));
@@ -96,10 +100,10 @@
 
         if (cont.querySelector('canvas')) return true; // already called
 
-        const width = $(`#${type}_width input[type=number]`);
-        const height = $(`#${type}_height input[type=number]`);
-        const width2 = $(`#${type}_width input[type=range]`);
-        const height2 = $(`#${type}_height input[type=range]`);
+        const width = $$(`#${type}_width input[type=number]`, 0);
+        const height = $$(`#${type}_height input[type=number]`, 0);
+        const width2 = $$(`#${type}_width input[type=range]`, 0);
+        const height2 = $$(`#${type}_height input[type=range]`, 0);
 
         const pos_x = Math.floor(+width.value / 4);
         const pos_y = Math.floor(+height.value / 4);
@@ -194,23 +198,23 @@
         
         // pos_cont
 
-        pos_cont.addEventListener('input', e => {
-            const ele = e.target;
-            let x = +canvas.dataset.x;
-            let y = +canvas.dataset.y;
-            if (ele.classList.contains(`llul-pos-x`)) {
-                x = +ele.value;
-            } else if (ele.classList.contains(`llul-pos-y`)) {
-                y = +ele.value;
-            } else {
-                return;
-            }
-            canvas.dataset.x = x;
-            canvas.dataset.y = y;
-            updateXY(canvas);
-            draw(canvas);
-            update_gradio(type, canvas);
-        });
+        //pos_cont.addEventListener('input', e => {
+        //    const ele = e.target;
+        //    let x = +canvas.dataset.x;
+        //    let y = +canvas.dataset.y;
+        //    if (ele.classList.contains(`llul-pos-x`)) {
+        //        x = +ele.value;
+        //    } else if (ele.classList.contains(`llul-pos-y`)) {
+        //        y = +ele.value;
+        //    } else {
+        //        return;
+        //    }
+        //    canvas.dataset.x = x;
+        //    canvas.dataset.y = y;
+        //    updateXY(canvas);
+        //    draw(canvas);
+        //    update_gradio(type, canvas);
+        //});
 
         cont.appendChild(pos_cont);
         cont.appendChild(canvas);
@@ -223,36 +227,16 @@
     }
 
     function init2(type, init_fn) {
-        const get_acc = new Promise(resolve => {
-            (function try_get_acc() {
-                const acc = gradioApp().querySelector('#' + id(type, 'accordion'));
-                if (acc) {
-                    resolve(acc);
-                } else {
-                    setTimeout(try_get_acc, 500);
-                }
-            })();
-        });
-
-        return get_acc.then(acc => {
-            const observer = new MutationObserver((list, observer) => {
-                for (let mut of list) {
-                    //console.log(mut.type);
-                    if (mut.type === 'childList') {
-                        //console.log(mut.addedNodes);
-                        //console.log(mut.removedNodes);
-                        if (mut.addedNodes.length != 0) {
-                            // closed -> opened
-                            init_fn(type);
-                        } else {
-                            // opened -> closed
-                            // do nothing
-                        }
-                    }
-                }
-            });
-            observer.observe(acc, { childList: true, attributes: false, subtree: false });
-        });
+        const repeat_until = (fn, resolve) => {
+            const v = fn();
+            if (v) {
+                resolve(v);
+            } else {
+                setTimeout(() => repeat_until(fn, resolve), 500);
+            }
+        };
+        
+        return new Promise(resolve => repeat_until(() => init_fn(type), resolve));
     }
     
     function init_LLuL() {
