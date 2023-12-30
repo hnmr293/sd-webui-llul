@@ -233,8 +233,8 @@ class Script(scripts.Script):
         if y is None or len(y) == 0:
             y = str((p.height - p.height // multiply) // 2)
         
-        xi0 = int(x)
-        yi0 = int(y)
+        xi0 = int(float(x)) # for '133.1999969482422' or etc.
+        yi0 = int(float(y))
         xi1 = xi0 + p.width // multiply
         yi1 = yi0 + p.height // multiply
         
